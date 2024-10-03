@@ -1,0 +1,3 @@
+INDEX VERSION 1.131+C:\Users\차재현\Desktop\전북대\JAVA프로그래밍\기말고사 대체과제\.metadata\.plugins\org.eclipse.jdt.core
+4128132153.index
+1173606711.index

@@ -1,0 +1,135 @@
+import java.net.*;
+import java.util.ArrayList;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
+import javax.swing.*;
+
+public class Server extends JFrame{
+	Socket socket = null;                
+    ServerSocket server_socket = null; 
+    BufferedReader in = null;           
+    PrintWriter out = null;
+    Frame frame;
+    ServerSetting servetSetting;
+    private JTextArea log = new JTextArea();
+	private JScrollPane scrollPane = new JScrollPane(log);
+    int numPlayer;
+    int numUser;
+    int numComputer;
+    
+    public Server(Frame f,ServerSetting ss)
+    {
+    	this.frame = f;
+    	this.setSize(600,300);
+    	this.setVisible(true);
+    	this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		this.servetSetting = ss;
+		this.numPlayer = this.servetSetting.getnumPlayer();
+		this.numUser = 1;
+		this.numComputer = 0;
+		this.setLayout(null);
+		this.addComponents();
+    }
+    
+    private void addComponents()
+    {
+    	log.setEditable(false);
+		scrollPane.setBounds(30, 30, 220, 200);
+		this.add(scrollPane, BorderLayout.WEST);
+		
+		Font font = new Font("Dialog", Font.BOLD, 14);
+		JLabel[] numLabel = new JLabel[2];
+		ArrayList<String> labelStrings = new ArrayList<>();
+		labelStrings.add("현재 플레이어 수");
+		labelStrings.add("설정 된 플레이어 수");
+		
+		for(int i=0; i<labelStrings.size(); i++)
+		{
+			JLabel label = new JLabel(labelStrings.get(i));
+			label.setFont(font);
+			label.setForeground(Color.BLACK);
+			label.setBounds((int) (this.getWidth() * 0.49), (int) (this.getHeight() * 0.13) + i*70 , 150, 20);
+			this.add(label, BorderLayout.WEST);
+			
+			if(i == 0){ numLabel[i] = new JLabel(Integer.toString(numUser));}
+			else {numLabel[i] = new JLabel(Integer.toString(numPlayer));}
+			numLabel[i].setFont(font);
+			numLabel[i].setForeground(Color.BLACK);
+			numLabel[i].setBounds((int) (this.getWidth() * 0.77), (int) (this.getHeight() * 0.13) + i*70 , 20, 20);
+			this.add(numLabel[i], BorderLayout.WEST);
+		}
+		
+		ArrayList<String> buttonStrings = new ArrayList<>();
+		buttonStrings.add("- 시작");
+		buttonStrings.add("- 메인메뉴로");
+		
+		for(int i=0; i<buttonStrings.size(); i++)
+		{
+			JButton button = new JButton(buttonStrings.get(i));
+			button.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e)
+				{
+					String string = e.getActionCommand();
+					
+					if(string.equals("- 시작"))
+					{
+						
+					}
+					
+					else if(string.equals("- 메인메뉴로"))
+					{
+						frame.push(new Menu(frame));
+					}
+				}
+			});
+			button.setBounds((int) (this.getWidth() * 0.51 + i*150), (int) (this.getHeight() * 0.23) + 130, 110, 50);
+			this.add(button, BorderLayout.WEST);
+		}
+    }
+    
+    public void paintComponent(Graphics g)
+	{
+		int width = (int) this.getSize().width;
+		int height = (int) this.getSize().height;
+		
+		Graphics2D g2 = (Graphics2D) g.create();
+		g2.setColor(Color.WHITE);
+		g2.fillRect(0, 0, width, height);
+	}
+    
+    private void setServer()
+    {
+    	try{
+            server_socket = new ServerSocket(8888);
+            
+        }catch(IOException e)
+        {
+            System.out.println("해당 포트가 열려있습니다.");
+        }
+        try {
+            
+            System.out.println("서버 오픈!!");
+            socket = server_socket.accept();    
+            
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));    
+            out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()))); 
+            
+            String str = null;
+            str = in.readLine();                
+
+            System.out.println("Client로 부터 온 메세지 : " + str);
+            
+            out.write(str);
+            out.flush();
+            socket.close();
+        }catch(IOException e){}
+    }	
+}
+
+
